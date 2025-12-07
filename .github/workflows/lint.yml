@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+permissions: {}
+
+jobs:
+  ruff:
+    name: "Ruff"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install requirements
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Lint
+        run: python3 -m ruff check .
+
+      - name: Format
+        run: python3 -m ruff format . --check

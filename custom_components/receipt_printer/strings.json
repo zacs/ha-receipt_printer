@@ -1,0 +1,20 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Configure your Epson receipt printer. Enter the printer's IP address and give it a name.",
+                "data": {
+                    "printer_name": "Printer Name",
+                    "printer_ip": "Printer IP Address"
+                }
+            }
+        },
+        "error": {
+            "connection": "Unable to connect to the printer. Please check the IP address and ensure the printer is powered on and connected to your network.",
+            "unknown": "An unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This printer is already configured."
+        }
+    }
+}

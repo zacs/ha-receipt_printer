@@ -1,0 +1,125 @@
+print_text:
+  name: Print Text
+  description: Print text to the receipt printer.
+  fields:
+    text:
+      name: Text
+      description: The text to print.
+      required: true
+      example: "Hello World!"
+      selector:
+        text:
+          multiline: true
+    align:
+      name: Alignment
+      description: Text alignment.
+      required: false
+      default: left
+      example: center
+      selector:
+        select:
+          options:
+            - left
+            - center
+            - right
+    font:
+      name: Font
+      description: Font to use.
+      required: false
+      default: a
+      example: a
+      selector:
+        select:
+          options:
+            - a
+            - b
+    bold:
+      name: Bold
+      description: Print text in bold.
+      required: false
+      default: false
+      selector:
+        boolean:
+    double_height:
+      name: Double Height
+      description: Print text at double height.
+      required: false
+      default: false
+      selector:
+        boolean:
+    double_width:
+      name: Double Width
+      description: Print text at double width.
+      required: false
+      default: false
+      selector:
+        boolean:
+    cut:
+      name: Cut Paper
+      description: Cut the paper after printing.
+      required: false
+      default: true
+      selector:
+        boolean:
+
+print_image:
+  name: Print Image
+  description: Print an image to the receipt printer.
+  fields:
+    image_path:
+      name: Image Path
+      description: Path to the image file to print (jpg, png, gif, bmp).
+      required: true
+      example: "/config/www/receipt_logo.png"
+      selector:
+        text:
+    center:
+      name: Center
+      description: Center the image on the paper.
+      required: false
+      default: false
+      selector:
+        boolean:
+    cut:
+      name: Cut Paper
+      description: Cut the paper after printing.
+      required: false
+      default: true
+      selector:
+        boolean:
+
+print_qr:
+  name: Print QR Code
+  description: Print a QR code to the receipt printer.
+  fields:
+    content:
+      name: Content
+      description: The content to encode in the QR code.
+      required: true
+      example: "https://www.home-assistant.io"
+      selector:
+        text:
+    size:
+      name: Size
+      description: Size of the QR code (1-16, default 3).
+      required: false
+      default: 3
+      example: 3
+      selector:
+        number:
+          min: 1
+          max: 16
+    center:
+      name: Center
+      description: Center the QR code on the paper.
+      required: false
+      default: false
+      selector:
+        boolean:
+    cut:
+      name: Cut Paper
+      description: Cut the paper after printing.
+      required: false
+      default: true
+      selector:
+        boolean:

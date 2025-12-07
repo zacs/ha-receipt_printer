@@ -1,0 +1,223 @@
+"""Receipt Printer API Client."""
+
+from __future__ import annotations
+
+import asyncio
+from typing import Any
+
+from escpos.printer import Network
+from escpos.exceptions import Error as EscposError
+
+
+class ReceiptPrinterApiClientError(Exception):
+    """Exception to indicate a general API error."""
+
+
+class ReceiptPrinterApiClientCommunicationError(
+    ReceiptPrinterApiClientError,
+):
+    """Exception to indicate a communication error."""
+
+
+class ReceiptPrinterApiClient:
+    """Receipt Printer API Client."""
+
+    def __init__(
+        self,
+        host: str,
+    ) -> None:
+        """Initialize the Receipt Printer API Client."""
+        self._host = host
+        self._printer: Network | None = None
+
+    def _get_printer(self) -> Network:
+        """Get or create printer instance."""
+        if self._printer is None:
+            self._printer = Network(self._host)
+        return self._printer
+
+    async def async_connect(self) -> None:
+        """Connect to the printer."""
+        try:
+            await asyncio.to_thread(self._connect)
+        except Exception as exception:
+            msg = f"Error connecting to printer - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _connect(self) -> None:
+        """Connect to printer (blocking)."""
+        printer = self._get_printer()
+        printer.open()
+
+    async def async_disconnect(self) -> None:
+        """Disconnect from the printer."""
+        if self._printer is not None:
+            try:
+                await asyncio.to_thread(self._printer.close)
+            except Exception:
+                pass  # Ignore errors on disconnect
+
+    async def async_test_connection(self) -> dict[str, Any]:
+        """Test connection and get basic printer info."""
+        try:
+            return await asyncio.to_thread(self._test_connection)
+        except Exception as exception:
+            msg = f"Error testing printer connection - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _test_connection(self) -> dict[str, Any]:
+        """Test connection (blocking)."""
+        printer = self._get_printer()
+        try:
+            printer.open()
+            # Try to get printer status
+            is_online = printer.is_online()
+            paper = printer.paper_status()
+            
+            return {
+                "online": is_online,
+                "paper_status": paper,
+            }
+        finally:
+            try:
+                printer.close()
+            except Exception:
+                pass
+
+    async def async_get_status(self) -> dict[str, Any]:
+        """Get printer status."""
+        try:
+            return await asyncio.to_thread(self._get_status)
+        except Exception as exception:
+            msg = f"Error getting printer status - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _get_status(self) -> dict[str, Any]:
+        """Get status (blocking)."""
+        printer = self._get_printer()
+        try:
+            is_online = printer.is_online()
+            paper = printer.paper_status()
+            
+            return {
+                "online": is_online,
+                "paper_status": paper,
+            }
+        except EscposError as exception:
+            return {
+                "online": False,
+                "paper_status": 0,
+                "error": str(exception),
+            }
+
+    async def async_print_text(
+        self,
+        text: str,
+        align: str = "left",
+        font: str = "a",
+        bold: bool = False,
+        double_height: bool = False,
+        double_width: bool = False,
+        cut: bool = True,
+    ) -> None:
+        """Print text."""
+        try:
+            await asyncio.to_thread(
+                self._print_text,
+                text,
+                align,
+                font,
+                bold,
+                double_height,
+                double_width,
+                cut,
+            )
+        except Exception as exception:
+            msg = f"Error printing text - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _print_text(
+        self,
+        text: str,
+        align: str,
+        font: str,
+        bold: bool,
+        double_height: bool,
+        double_width: bool,
+        cut: bool,
+    ) -> None:
+        """Print text (blocking)."""
+        printer = self._get_printer()
+        printer.set(
+            align=align,
+            font=font,
+            bold=bold,
+            double_height=double_height,
+            double_width=double_width,
+        )
+        printer.text(text + "\n")
+        if cut:
+            printer.cut()
+
+    async def async_print_image(
+        self,
+        image_path: str,
+        center: bool = False,
+        cut: bool = True,
+    ) -> None:
+        """Print an image."""
+        try:
+            await asyncio.to_thread(
+                self._print_image,
+                image_path,
+                center,
+                cut,
+            )
+        except Exception as exception:
+            msg = f"Error printing image - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _print_image(
+        self,
+        image_path: str,
+        center: bool,
+        cut: bool,
+    ) -> None:
+        """Print image (blocking)."""
+        printer = self._get_printer()
+        printer.image(image_path, center=center)
+        if cut:
+            printer.cut()
+
+    async def async_print_qr(
+        self,
+        content: str,
+        size: int = 3,
+        center: bool = False,
+        cut: bool = True,
+    ) -> None:
+        """Print a QR code."""
+        try:
+            await asyncio.to_thread(
+                self._print_qr,
+                content,
+                size,
+                center,
+                cut,
+            )
+        except Exception as exception:
+            msg = f"Error printing QR code - {exception}"
+            raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _print_qr(
+        self,
+        content: str,
+        size: int,
+        center: bool,
+        cut: bool,
+    ) -> None:
+        """Print QR code (blocking)."""
+        printer = self._get_printer()
+        printer.qr(content, size=size, center=center)
+        if cut:
+            printer.cut()

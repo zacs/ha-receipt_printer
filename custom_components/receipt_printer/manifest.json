@@ -1,0 +1,15 @@
+{
+  "domain": "receipt_printer",
+  "name": "Receipt Printer",
+  "codeowners": [
+    "@zacs"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/zacs/ha-receipt_printer",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/zacs/ha-receipt_printer/issues",
+  "requirements": [
+    "python-escpos==3.0"
+  ],
+  "version": "0.1.0"
+}

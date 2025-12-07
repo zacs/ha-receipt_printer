@@ -1,0 +1,109 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Configure your Epson receipt printer. Enter the printer's IP address and give it a name.",
+                "data": {
+                    "printer_name": "Printer Name",
+                    "printer_ip": "Printer IP Address"
+                }
+            }
+        },
+        "error": {
+            "connection": "Unable to connect to the printer. Please check the IP address and ensure the printer is powered on and connected to your network.",
+            "unknown": "An unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This printer is already configured."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "status": {
+                "name": "Status",
+                "state": {
+                    "online": "Online",
+                    "offline": "Offline",
+                    "paper_low": "Paper Low",
+                    "no_paper": "No Paper"
+                }
+            }
+        }
+    },
+    "services": {
+        "print_text": {
+            "name": "Print Text",
+            "description": "Print text to the receipt printer.",
+            "fields": {
+                "text": {
+                    "name": "Text",
+                    "description": "The text to print."
+                },
+                "align": {
+                    "name": "Alignment",
+                    "description": "Text alignment (left, center, or right)."
+                },
+                "font": {
+                    "name": "Font",
+                    "description": "Font to use (a or b)."
+                },
+                "bold": {
+                    "name": "Bold",
+                    "description": "Print text in bold."
+                },
+                "double_height": {
+                    "name": "Double Height",
+                    "description": "Print text at double height."
+                },
+                "double_width": {
+                    "name": "Double Width",
+                    "description": "Print text at double width."
+                },
+                "cut": {
+                    "name": "Cut Paper",
+                    "description": "Cut the paper after printing."
+                }
+            }
+        },
+        "print_image": {
+            "name": "Print Image",
+            "description": "Print an image to the receipt printer.",
+            "fields": {
+                "image_path": {
+                    "name": "Image Path",
+                    "description": "Path to the image file to print."
+                },
+                "center": {
+                    "name": "Center",
+                    "description": "Center the image on the paper."
+                },
+                "cut": {
+                    "name": "Cut Paper",
+                    "description": "Cut the paper after printing."
+                }
+            }
+        },
+        "print_qr": {
+            "name": "Print QR Code",
+            "description": "Print a QR code to the receipt printer.",
+            "fields": {
+                "content": {
+                    "name": "Content",
+                    "description": "The content to encode in the QR code."
+                },
+                "size": {
+                    "name": "Size",
+                    "description": "Size of the QR code (1-16)."
+                },
+                "center": {
+                    "name": "Center",
+                    "description": "Center the QR code on the paper."
+                },
+                "cut": {
+                    "name": "Cut Paper",
+                    "description": "Cut the paper after printing."
+                }
+            }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 colorlog==6.10.1
 homeassistant==2025.2.4
 pip>=21.3.1
-ruff==0.14.8
+ruff==0.14.9
 python-escpos==3.0

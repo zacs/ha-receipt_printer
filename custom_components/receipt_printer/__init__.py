@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import voluptuous as vol
+from getmac import get_mac_address
 from homeassistant.const import Platform
 from homeassistant.core import ServiceCall
 from homeassistant.helpers import config_validation as cv
@@ -86,16 +87,24 @@ async def async_setup_entry(
     # Connect to the printer
     await client.async_connect()
 
+    # Get the MAC address from the IP
+    mac_address = get_mac_address(ip=entry.data[CONF_PRINTER_IP])
+    
     # Register the device
     device_registry = dr.async_get(hass)
-    device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, entry.data[CONF_PRINTER_IP])},
-        name=entry.title,
-        manufacturer="Epson",
-        model="Receipt Printer",
-        connections={(dr.CONNECTION_NETWORK_MAC, entry.data[CONF_PRINTER_IP])},
-    )
+    device_info = {
+        "config_entry_id": entry.entry_id,
+        "identifiers": {(DOMAIN, entry.data[CONF_PRINTER_IP])},
+        "name": entry.title,
+        "manufacturer": "Epson",
+        "model": "Receipt Printer",
+    }
+    
+    # Only add MAC connection if we successfully retrieved it
+    if mac_address:
+        device_info["connections"] = {(dr.CONNECTION_NETWORK_MAC, mac_address)}
+    
+    device_registry.async_get_or_create(**device_info)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

@@ -10,13 +10,13 @@ _Integration to control Epson receipt printers in Home Assistant._
 
 ## Features
 
-- **Device Integration**: Creates a Home Assistant device for your receipt printer with real-time status monitoring
-- **Status Sensor**: Monitor printer status including online/offline state and paper levels
 - **Print Services**: Three convenient services for printing:
   - Print text with customizable formatting (alignment, font, bold, double height/width)
-  - Print local and remote images (PNG, JPG, GIF, BMP)
+  - Print local and remote images (PNG, JPG, GIF, BMP) _Hardcoded to 576 dots for 80mm paper._
   - Print QR codes
 - **Paper Cutting**: Optional automatic paper cutting after each print job
+- **Status Sensor**: Monitor printer status including online/offline state and paper levels
+- **Device Integration**: Creates a Home Assistant device for your receipt printer with real-time status monitoring
 
 ## Installation
 
@@ -56,9 +56,7 @@ The integration will attempt to connect to the printer and verify it's accessibl
 This integration uses the [python-escpos](https://github.com/python-escpos/python-escpos) library and supports **Epson ESC/POS compatible receipt printers** with network (TCP/IP) connectivity.
 
 Tested models:
-- Epson TM-T88 series
-- Epson TM-T20 series
-- Other Epson ESC/POS compatible network printers
+- Epson TM-T88VI
 
 **Note**: USB and serial printers are not currently supported.
 

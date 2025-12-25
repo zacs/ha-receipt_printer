@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import tempfile
+from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+
+import aiohttp
 
 from escpos.printer import Network
 from escpos.exceptions import Error as EscposError
@@ -167,15 +172,55 @@ class ReceiptPrinterApiClient:
     ) -> None:
         """Print an image."""
         try:
-            await asyncio.to_thread(
-                self._print_image,
-                image_path,
-                center,
-                cut,
-            )
+            # Check if image_path is a URL
+            if self._is_url(image_path):
+                # Download the image to a temporary file
+                temp_file = await self._download_image(image_path)
+                try:
+                    await asyncio.to_thread(
+                        self._print_image,
+                        temp_file,
+                        center,
+                        cut,
+                    )
+                finally:
+                    # Clean up the temporary file
+                    try:
+                        Path(temp_file).unlink()
+                    except Exception:
+                        pass  # Ignore cleanup errors
+            else:
+                await asyncio.to_thread(
+                    self._print_image,
+                    image_path,
+                    center,
+                    cut,
+                )
         except Exception as exception:
             msg = f"Error printing image - {exception}"
             raise ReceiptPrinterApiClientCommunicationError(msg) from exception
+
+    def _is_url(self, path: str) -> bool:
+        """Check if a path is a URL."""
+        try:
+            result = urlparse(path)
+            return result.scheme in ("http", "https")
+        except Exception:
+            return False
+
+    async def _download_image(self, url: str) -> str:
+        """Download an image from a URL to a temporary file."""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    msg = f"Failed to download image from {url}: HTTP {response.status}"
+                    raise ReceiptPrinterApiClientCommunicationError(msg)
+                
+                # Create a temporary file
+                suffix = Path(urlparse(url).path).suffix or ".jpg"
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
+                    tmp_file.write(await response.read())
+                    return tmp_file.name
 
     def _print_image(
         self,

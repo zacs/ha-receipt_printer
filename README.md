@@ -14,7 +14,7 @@ _Integration to control Epson receipt printers in Home Assistant._
 - **Status Sensor**: Monitor printer status including online/offline state and paper levels
 - **Print Services**: Three convenient services for printing:
   - Print text with customizable formatting (alignment, font, bold, double height/width)
-  - Print images (PNG, JPG, GIF, BMP)
+  - Print local and remote images (PNG, JPG, GIF, BMP)
   - Print QR codes
 - **Paper Cutting**: Optional automatic paper cutting after each print job
 
@@ -36,7 +36,7 @@ _Integration to control Epson receipt printers in Home Assistant._
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`)
 2. If you do not have a `custom_components` directory there, you need to create it
 3. In the `custom_components` directory create a new folder called `receipt_printer`
-4. Download _all_ the files from the `custom_components/receipt_printer/` directory in this repository
+4. Download all the files from the `custom_components/receipt_printer/` directory in this repository
 5. Place the files you downloaded in the new `receipt_printer` directory you created
 6. Restart Home Assistant
 

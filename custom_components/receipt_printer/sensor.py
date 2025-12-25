@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorEntityDescription
-from homeassistant.const import EntityCategory
 
 from .const import PAPER_STATUS
 from .entity import ReceiptPrinterEntity
@@ -18,11 +17,11 @@ if TYPE_CHECKING:
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
-        key="status",
-        name="Status",
-        icon="mdi:printer",
+        key="paper_status",
+        name="Paper Status",
+        icon="mdi:receipt",
         device_class=SensorDeviceClass.ENUM,
-        options=["online", "offline", "paper_low", "no_paper"],
+        options=["ok", "low", "out"],
     ),
 )
 
@@ -35,7 +34,7 @@ async def async_setup_entry(
     """Set up the sensor platform."""
     async_add_entities(
         [
-            ReceiptPrinterStatusSensor(
+            ReceiptPrinterPaperSensor(
                 entry=entry,
                 entity_description=entity_description,
             )
@@ -44,8 +43,8 @@ async def async_setup_entry(
     )
 
 
-class ReceiptPrinterStatusSensor(ReceiptPrinterEntity, SensorEntity):
-    """Receipt Printer Status Sensor class."""
+class ReceiptPrinterPaperSensor(ReceiptPrinterEntity, SensorEntity):
+    """Receipt Printer Paper Status Sensor class."""
 
     def __init__(
         self,
@@ -63,17 +62,17 @@ class ReceiptPrinterStatusSensor(ReceiptPrinterEntity, SensorEntity):
             status = await self._entry.runtime_data.client.async_get_status()
             
             if not status.get("online", False):
-                self._attr_native_value = "offline"
+                # If printer is offline, mark sensor as unavailable
+                self._attr_available = False
             else:
                 paper_status = status.get("paper_status", 0)
                 if paper_status == 0:
-                    self._attr_native_value = "no_paper"
+                    self._attr_native_value = "out"
                 elif paper_status == 1:
-                    self._attr_native_value = "paper_low"
+                    self._attr_native_value = "low"
                 else:
-                    self._attr_native_value = "online"
-            
-            self._attr_available = True
+                    self._attr_native_value = "ok"
+                
+                self._attr_available = True
         except Exception:
             self._attr_available = False
-            self._attr_native_value = "offline"

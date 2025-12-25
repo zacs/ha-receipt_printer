@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from .data import ReceiptPrinterConfigEntry
 
 PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
     Platform.SENSOR,
 ]
 

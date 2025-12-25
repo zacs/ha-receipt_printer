@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import aiohttp
+from PIL import Image
 
 from escpos.printer import Network
 from escpos.exceptions import Error as EscposError
@@ -230,7 +231,23 @@ class ReceiptPrinterApiClient:
     ) -> None:
         """Print image (blocking)."""
         printer = self._get_printer()
-        printer.image(image_path, center=center)
+        
+        # Open the image and resize if needed
+        img = Image.open(image_path)
+        
+        # Check if image width exceeds 576 pixels
+        max_width = 576
+        if img.width > max_width:
+            # Calculate new height to maintain aspect ratio
+            aspect_ratio = img.height / img.width
+            new_width = max_width
+            new_height = int(new_width * aspect_ratio)
+            
+            # Resize the image
+            img = img.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Print the image (escpos supports PIL Image objects)
+        printer.image(img, center=center)
         if cut:
             printer.cut()
 

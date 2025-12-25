@@ -11,7 +11,8 @@
   "requirements": [
     "python-escpos==3.0",
     "aiohttp",
-    "getmac"
+    "getmac",
+    "Pillow"
   ],
   "version": "0.1.0"
 }

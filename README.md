@@ -11,12 +11,16 @@ _Integration to control Epson receipt printers in Home Assistant._
 ## Features
 
 - **Print Services**: Three convenient services for printing:
-  - Print text with customizable formatting (alignment, font, bold, double height/width)
-  - Print local and remote images (PNG, JPG, GIF, BMP) _Hardcoded to 576 dots for 80mm paper._
+  - Print text with customizable formatting (alignment, font, bold, double height/width, word wrapping)
+  - Print local and remote images (PNG, JPG, GIF, BMP) with automatic resizing
   - Print QR codes
+- **Remote Image Support**: Automatically downloads and prints images from URLs
+- **Automatic Resizing**: Images are automatically resized to fit your printer's width while maintaining aspect ratio
 - **Paper Cutting**: Optional automatic paper cutting after each print job
-- **Status Sensor**: Monitor printer status including online/offline state and paper levels
-- **Device Integration**: Creates a Home Assistant device for your receipt printer with real-time status monitoring
+- **Status Monitoring**: 
+  - Binary sensor for online/offline status
+  - Sensor for paper status (ok, low, out)
+- **Configurable Printer Settings**: Support for different printer models with customizable column widths and image sizes
 
 ## Installation
 
@@ -48,15 +52,26 @@ _Integration to control Epson receipt printers in Home Assistant._
 4. Enter the following information:
    - **Printer Name**: A friendly name for your printer (e.g., "Kitchen Receipt Printer")
    - **Printer IP Address**: The IP address of your receipt printer on your network
+   - **Columns (Font A)**: Number of text columns for font A (default: 42, suitable for TM-T88V)
+   - **Columns (Font B)**: Number of text columns for font B (default: 56, suitable for TM-T88V)
+   - **Image Max Width**: Maximum image width in pixels (default: 400, suitable for TM-T88V)
 
-The integration will attempt to connect to the printer and verify it's accessible.
+The integration will attempt to connect to the printer and verify it's accessible. The column and image settings can be adjusted to match your specific printer model.
+
+### Printer Configuration Notes
+
+Different printer models support different widths:
+- **Epson TM-T88V/VI** (80mm): Font A = 42 columns, Font B = 56 columns, Image width = 400 pixels
+- For other models, consult your printer's documentation or the [python-escpos printer profiles](https://python-escpos.readthedocs.io/en/latest/printer_profiles/available-profiles.html)
 
 ## Supported Printers
 
-This integration uses the [python-escpos](https://github.com/python-escpos/python-escpos) library and supports **Epson ESC/POS compatible receipt printers** with network (TCP/IP) connectivity.
+This integration uses the [python-escpos](https://github.com/python-escpos/python-escpos) library and supports **Epson ESC/POS compatible receipt printers** with network (TCP/IP) connectivity. 
 
 Tested models:
 - Epson TM-T88VI
+
+Other ESC/POS compatible printers should work but may require adjusting the column widths and image size settings during configuration.
 
 **Note**: USB and serial printers are not currently supported.
 
@@ -64,11 +79,18 @@ Tested models:
 
 ### Status Monitoring
 
-Once configured, the integration creates a sensor entity that shows the current printer status:
-- **Online**: Printer is connected and ready
-- **Offline**: Cannot communicate with printer
-- **Paper Low**: Paper is running low (near-end sensor triggered)
-- **No Paper**: Printer is out of paper
+Once configured, the integration creates two entities for status monitoring:
+
+#### Binary Sensor: Online Status
+- **Connected**: Printer is online and accessible
+- **Disconnected**: Cannot communicate with printer
+
+#### Sensor: Paper Status
+- **ok**: Printer has adequate paper
+- **low**: Paper is running low (near-end sensor triggered)
+- **out**: Printer is out of paper
+
+The paper status sensor will be unavailable when the printer is offline.
 
 ### Services
 
@@ -88,23 +110,32 @@ data:
   bold: false
   double_height: false
   double_width: false
+  wrap: true  # Enable automatic word wrapping (default: true)
   cut: true  # Cut paper after printing
 ```
 
+**Word Wrapping**: When `wrap: true` (default), text will automatically wrap at word boundaries to fit the printer's configured column width. Set to `false` to disable wrapping and print text as-is.
+
 #### `receipt_printer.print_image`
 
-Print an image file to the receipt printer.
+Print an image file to the receipt printer. Images can be local file paths or remote URLs.
 
 **Service Data:**
 ```yaml
 service: receipt_printer.print_image
 data:
-  image_path: "/config/www/logo.png"
+  image_path: "/config/www/logo.png"  # or "https://example.com/image.jpg"
   center: true
   cut: true
 ```
 
 **Supported formats**: PNG, JPG, GIF, BMP
+
+**Image Handling**:
+- Local files: Use absolute paths (e.g., `/config/www/image.png`)
+- Remote images: Use full URLs (e.g., `https://example.com/image.jpg`)
+- Images wider than the configured max width are automatically resized while maintaining aspect ratio
+- Images smaller than the max width are printed at their original size
 
 #### `receipt_printer.print_qr`
 
@@ -223,6 +254,9 @@ This integration is built using the [python-escpos](https://python-escpos.readth
 
 - Home Assistant 2024.1 or newer
 - python-escpos 3.0
+- aiohttp (for downloading remote images)
+- Pillow (for image processing)
+- getmac (for MAC address detection)
 
 ## Support
 

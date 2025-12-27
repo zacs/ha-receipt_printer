@@ -5,7 +5,15 @@
                 "description": "Configure your Epson receipt printer. Enter the printer's IP address and give it a name.",
                 "data": {
                     "printer_name": "Printer Name",
-                    "printer_ip": "Printer IP Address"
+                    "printer_ip": "Printer IP Address",
+                    "columns_font_a": "Columns (Font A)",
+                    "columns_font_b": "Columns (Font B)",
+                    "image_max_width": "Image Max Width (pixels)"
+                },
+                "data_description": {
+                    "columns_font_a": "Number of text columns for font A (default: 42 for TM-T88V)",
+                    "columns_font_b": "Number of text columns for font B (default: 56 for TM-T88V)",
+                    "image_max_width": "Maximum image width in pixels (default: 400 for TM-T88V)"
                 }
             }
         },

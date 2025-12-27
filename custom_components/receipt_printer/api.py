@@ -31,10 +31,16 @@ class ReceiptPrinterApiClient:
     def __init__(
         self,
         host: str,
+        columns_font_a: int = 42,
+        columns_font_b: int = 56,
+        image_max_width: int = 400,
     ) -> None:
         """Initialize the Receipt Printer API Client."""
         self._host = host
         self._printer: Network | None = None
+        self._columns_font_a = columns_font_a
+        self._columns_font_b = columns_font_b
+        self._image_max_width = image_max_width
 
     def _get_printer(self) -> Network:
         """Get or create printer instance."""
@@ -167,8 +173,8 @@ class ReceiptPrinterApiClient:
         
         if wrap:
             # Use block_text for automatic word wrapping
-            # Font 'a' has 42 columns, font 'b' has 56 columns (TM-T88V profile)
-            columns = 56 if font == "b" else 42
+            # Use configured column widths
+            columns = self._columns_font_b if font == "b" else self._columns_font_a
             # Adjust columns for double width
             if double_width:
                 columns = columns // 2
@@ -250,9 +256,8 @@ class ReceiptPrinterApiClient:
         # Open the image and resize if needed
         img = Image.open(image_path)
         
-        # Check if image width exceeds 400 pixels (TM-T88V max width)
-        max_width = 400
-        if img.width > max_width:
+        # Check if image width exceeds configured max width
+        if img.width > self._image_max_width:
             # Calculate new height to maintain aspect ratio
             aspect_ratio = img.height / img.width
             new_width = max_width

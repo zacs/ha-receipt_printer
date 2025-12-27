@@ -9,6 +9,9 @@ DOMAIN = "receipt_printer"
 # Config flow
 CONF_PRINTER_IP = "printer_ip"
 CONF_PRINTER_NAME = "printer_name"
+CONF_COLUMNS_FONT_A = "columns_font_a"
+CONF_COLUMNS_FONT_B = "columns_font_b"
+CONF_IMAGE_MAX_WIDTH = "image_max_width"
 
 # Services
 SERVICE_PRINT_TEXT = "print_text"

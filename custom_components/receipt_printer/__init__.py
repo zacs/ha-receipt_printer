@@ -20,6 +20,9 @@ from homeassistant.loader import async_get_loaded_integration
 
 from .api import ReceiptPrinterApiClient
 from .const import (
+    CONF_COLUMNS_FONT_A,
+    CONF_COLUMNS_FONT_B,
+    CONF_IMAGE_MAX_WIDTH,
     CONF_PRINTER_IP,
     DOMAIN,
     LOGGER,
@@ -79,6 +82,9 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     client = ReceiptPrinterApiClient(
         host=entry.data[CONF_PRINTER_IP],
+        columns_font_a=entry.data.get(CONF_COLUMNS_FONT_A, 42),
+        columns_font_b=entry.data.get(CONF_COLUMNS_FONT_B, 56),
+        image_max_width=entry.data.get(CONF_IMAGE_MAX_WIDTH, 400),
     )
     
     entry.runtime_data = ReceiptPrinterData(

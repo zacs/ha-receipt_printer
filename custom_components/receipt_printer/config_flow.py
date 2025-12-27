@@ -11,7 +11,15 @@ from .api import (
     ReceiptPrinterApiClientCommunicationError,
     ReceiptPrinterApiClientError,
 )
-from .const import CONF_PRINTER_IP, CONF_PRINTER_NAME, DOMAIN, LOGGER
+from .const import (
+    CONF_COLUMNS_FONT_A,
+    CONF_COLUMNS_FONT_B,
+    CONF_IMAGE_MAX_WIDTH,
+    CONF_PRINTER_IP,
+    CONF_PRINTER_NAME,
+    DOMAIN,
+    LOGGER,
+)
 
 
 class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -63,6 +71,36 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_COLUMNS_FONT_A,
+                        default=(user_input or {}).get(CONF_COLUMNS_FONT_A, 42),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=100,
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_COLUMNS_FONT_B,
+                        default=(user_input or {}).get(CONF_COLUMNS_FONT_B, 56),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=100,
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_IMAGE_MAX_WIDTH,
+                        default=(user_input or {}).get(CONF_IMAGE_MAX_WIDTH, 400),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=1000,
+                            mode=selector.NumberSelectorMode.BOX,
                         ),
                     ),
                 },

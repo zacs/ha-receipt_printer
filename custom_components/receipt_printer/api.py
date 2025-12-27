@@ -125,6 +125,7 @@ class ReceiptPrinterApiClient:
         double_height: bool = False,
         double_width: bool = False,
         cut: bool = True,
+        wrap: bool = True,
     ) -> None:
         """Print text."""
         try:
@@ -137,6 +138,7 @@ class ReceiptPrinterApiClient:
                 double_height,
                 double_width,
                 cut,
+                wrap,
             )
         except Exception as exception:
             msg = f"Error printing text - {exception}"
@@ -151,6 +153,7 @@ class ReceiptPrinterApiClient:
         double_height: bool,
         double_width: bool,
         cut: bool,
+        wrap: bool,
     ) -> None:
         """Print text (blocking)."""
         printer = self._get_printer()
@@ -161,7 +164,19 @@ class ReceiptPrinterApiClient:
             double_height=double_height,
             double_width=double_width,
         )
-        printer.text(text + "\n")
+        
+        if wrap:
+            # Use block_text for automatic word wrapping
+            # Font 'a' has 42 columns, font 'b' has 56 columns (TM-T88V profile)
+            columns = 56 if font == "b" else 42
+            # Adjust columns for double width
+            if double_width:
+                columns = columns // 2
+            printer.block_text(text, font=font, columns=columns)
+        else:
+            # Use regular text without wrapping
+            printer.text(text + "\n")
+        
         if cut:
             printer.cut()
 
@@ -235,8 +250,8 @@ class ReceiptPrinterApiClient:
         # Open the image and resize if needed
         img = Image.open(image_path)
         
-        # Check if image width exceeds 576 pixels
-        max_width = 576
+        # Check if image width exceeds 400 pixels (TM-T88V max width)
+        max_width = 400
         if img.width > max_width:
             # Calculate new height to maintain aspect ratio
             aspect_ratio = img.height / img.width

@@ -49,6 +49,7 @@ SERVICE_PRINT_TEXT_SCHEMA = vol.Schema(
         vol.Optional("double_height", default=False): cv.boolean,
         vol.Optional("double_width", default=False): cv.boolean,
         vol.Optional("cut", default=True): cv.boolean,
+        vol.Optional("wrap", default=True): cv.boolean,
     }
 )
 
@@ -121,6 +122,7 @@ async def async_setup_entry(
             double_height=call.data["double_height"],
             double_width=call.data["double_width"],
             cut=call.data["cut"],
+            wrap=call.data["wrap"],
         )
 
     async def handle_print_image(call: ServiceCall) -> None:

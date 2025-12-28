@@ -36,7 +36,7 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> ReceiptPrinterOptionsFlowHandler:
         """Get the options flow for this handler."""
-        return ReceiptPrinterOptionsFlowHandler(config_entry)
+        return ReceiptPrinterOptionsFlowHandler()
 
     async def async_step_user(
         self,

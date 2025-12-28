@@ -260,7 +260,7 @@ class ReceiptPrinterApiClient:
         if img.width > self._image_max_width:
             # Calculate new height to maintain aspect ratio
             aspect_ratio = img.height / img.width
-            new_width = self._image_max_width
+            new_width = int(self._image_max_width)
             new_height = int(new_width * aspect_ratio)
             
             # Resize the image

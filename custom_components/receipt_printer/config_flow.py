@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .api import (
@@ -26,6 +29,14 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Receipt Printer."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> ReceiptPrinterOptionsFlowHandler:
+        """Get the options flow for this handler."""
+        return ReceiptPrinterOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self,
@@ -95,7 +106,7 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     vol.Optional(
                         CONF_IMAGE_MAX_WIDTH,
-                        default=(user_input or {}).get(CONF_IMAGE_MAX_WIDTH, 400),
+                        default=(user_input or {}).get(CONF_IMAGE_MAX_WIDTH, 512),
                     ): selector.NumberSelector(
                         selector.NumberSelectorConfig(
                             min=1,
@@ -112,3 +123,65 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Validate we can connect to the printer."""
         client = ReceiptPrinterApiClient(host=host)
         await client.async_test_connection()
+
+
+class ReceiptPrinterOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options flow for Receipt Printer."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_COLUMNS_FONT_A,
+                        default=self.config_entry.options.get(
+                            CONF_COLUMNS_FONT_A,
+                            self.config_entry.data.get(CONF_COLUMNS_FONT_A, 42),
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=100,
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_COLUMNS_FONT_B,
+                        default=self.config_entry.options.get(
+                            CONF_COLUMNS_FONT_B,
+                            self.config_entry.data.get(CONF_COLUMNS_FONT_B, 56),
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=100,
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_IMAGE_MAX_WIDTH,
+                        default=self.config_entry.options.get(
+                            CONF_IMAGE_MAX_WIDTH,
+                            self.config_entry.data.get(CONF_IMAGE_MAX_WIDTH, 512),
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=1000,
+                            mode=selector.NumberSelectorMode.BOX,
+                        ),
+                    ),
+                }
+            ),
+        )

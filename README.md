@@ -54,14 +54,14 @@ _Integration to control Epson receipt printers in Home Assistant._
    - **Printer IP Address**: The IP address of your receipt printer on your network
    - **Columns (Font A)**: Number of text columns for font A (default: 42, suitable for TM-T88V)
    - **Columns (Font B)**: Number of text columns for font B (default: 56, suitable for TM-T88V)
-   - **Image Max Width**: Maximum image width in pixels (default: 400, suitable for TM-T88V)
+   - **Image Max Width**: Maximum image width in pixels (default: 512, suitable for TM-T88V)
 
 The integration will attempt to connect to the printer and verify it's accessible. The column and image settings can be adjusted to match your specific printer model.
 
 ### Printer Configuration Notes
 
 Different printer models support different widths:
-- **Epson TM-T88V/VI** (80mm): Font A = 42 columns, Font B = 56 columns, Image width = 400 pixels
+- **Epson TM-T88V/VI** (80mm): Font A = 42 columns, Font B = 56 columns, Image width = 512 pixels
 - For other models, consult your printer's documentation or the [python-escpos printer profiles](https://python-escpos.readthedocs.io/en/latest/printer_profiles/available-profiles.html)
 
 ## Supported Printers

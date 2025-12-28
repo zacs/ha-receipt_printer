@@ -33,7 +33,7 @@ class ReceiptPrinterApiClient:
         host: str,
         columns_font_a: int = 42,
         columns_font_b: int = 56,
-        image_max_width: int = 400,
+        image_max_width: int = 512,
     ) -> None:
         """Initialize the Receipt Printer API Client."""
         self._host = host

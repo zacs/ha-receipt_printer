@@ -80,11 +80,25 @@ async def async_setup_entry(
     entry: ReceiptPrinterConfigEntry,
 ) -> bool:
     """Set up this integration using UI."""
+    # Use options if available, otherwise fall back to data
+    columns_font_a = entry.options.get(
+        CONF_COLUMNS_FONT_A,
+        entry.data.get(CONF_COLUMNS_FONT_A, 42),
+    )
+    columns_font_b = entry.options.get(
+        CONF_COLUMNS_FONT_B,
+        entry.data.get(CONF_COLUMNS_FONT_B, 56),
+    )
+    image_max_width = entry.options.get(
+        CONF_IMAGE_MAX_WIDTH,
+        entry.data.get(CONF_IMAGE_MAX_WIDTH, 512),
+    )
+    
     client = ReceiptPrinterApiClient(
         host=entry.data[CONF_PRINTER_IP],
-        columns_font_a=entry.data.get(CONF_COLUMNS_FONT_A, 42),
-        columns_font_b=entry.data.get(CONF_COLUMNS_FONT_B, 56),
-        image_max_width=entry.data.get(CONF_IMAGE_MAX_WIDTH, 400),
+        columns_font_a=columns_font_a,
+        columns_font_b=columns_font_b,
+        image_max_width=image_max_width,
     )
     
     entry.runtime_data = ReceiptPrinterData(

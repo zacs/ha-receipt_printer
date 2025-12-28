@@ -13,7 +13,7 @@
                 "data_description": {
                     "columns_font_a": "Number of text columns for font A (default: 42 for TM-T88V)",
                     "columns_font_b": "Number of text columns for font B (default: 56 for TM-T88V)",
-                    "image_max_width": "Maximum image width in pixels (default: 400 for TM-T88V)"
+                    "image_max_width": "Maximum image width in pixels (default: 512 for TM-T88V)"
                 }
             }
         },
@@ -23,6 +23,23 @@
         },
         "abort": {
             "already_configured": "This printer is already configured."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Configure printer settings. Changes will take effect immediately.",
+                "data": {
+                    "columns_font_a": "Columns (Font A)",
+                    "columns_font_b": "Columns (Font B)",
+                    "image_max_width": "Image Max Width (pixels)"
+                },
+                "data_description": {
+                    "columns_font_a": "Number of text columns for font A (default: 42 for TM-T88V)",
+                    "columns_font_b": "Number of text columns for font B (default: 56 for TM-T88V)",
+                    "image_max_width": "Maximum image width in pixels (default: 512 for TM-T88V)"
+                }
+            }
         }
     },
     "entity": {

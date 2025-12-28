@@ -250,14 +250,6 @@ The paper status depends on the printer's sensors. Some printer models may not s
 
 This integration is built using the [python-escpos](https://python-escpos.readthedocs.io/) library. Contributions are welcome!
 
-### Requirements
-
-- Home Assistant 2024.1 or newer
-- python-escpos 3.0
-- aiohttp (for downloading remote images)
-- Pillow (for image processing)
-- getmac (for MAC address detection)
-
 ## Support
 
 - [Report a Bug](https://github.com/zacs/ha-receipt_printer/issues/new?template=bug_report.yml)
@@ -267,6 +259,10 @@ This integration is built using the [python-escpos](https://python-escpos.readth
 
 - Built on top of the [python-escpos](https://github.com/python-escpos/python-escpos) library
 - Integration structure based on [integration_blueprint](https://github.com/ludeeus/integration_blueprint)
+
+### Notes
+
+Epson spec sheet for the TM-T88VI (the only model I have): https://download4.epson.biz/sec_pubs/pos/reference_en/epos_and/ref_epos_sdk_and_en_printer-specificsupportinformation_tm-t88vi.html
 
 ---
 

@@ -178,7 +178,13 @@ class ReceiptPrinterApiClient:
             # Adjust columns for double width
             if double_width:
                 columns = columns // 2
-            printer.block_text(text, font=font, columns=columns)
+            # Process each line separately to preserve newlines
+            for line in text.split("\n"):
+                if line:
+                    printer.block_text(line, font=font, columns=columns)
+                else:
+                    # Empty line - print a newline
+                    printer.text("\n")
         else:
             # Use regular text without wrapping
             printer.text(text + "\n")

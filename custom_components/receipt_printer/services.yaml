@@ -54,6 +54,13 @@ print_text:
       default: false
       selector:
         boolean:
+    wrap:
+      name: Word Wrap
+      description: Automatically wrap text to fit printer width.
+      required: false
+      default: true
+      selector:
+        boolean:
     cut:
       name: Cut Paper
       description: Cut the paper after printing.

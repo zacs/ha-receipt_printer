@@ -6,6 +6,7 @@
                 "data": {
                     "printer_name": "Printer Name",
                     "printer_ip": "Printer IP Address",
+                    "printer_port":"Port",
                     "columns_font_a": "Columns (Font A)",
                     "columns_font_b": "Columns (Font B)",
                     "image_max_width": "Image Max Width (pixels)"

@@ -31,6 +31,7 @@ class ReceiptPrinterApiClient:
     def __init__(
         self,
         host: str,
+        port: int = 9100,
         columns_font_a: int = 42,
         columns_font_b: int = 56,
         image_max_width: int = 512,
@@ -38,6 +39,7 @@ class ReceiptPrinterApiClient:
         """Initialize the Receipt Printer API Client."""
         self._host = host
         self._printer: Network | None = None
+        self._port = port
         self._columns_font_a = columns_font_a
         self._columns_font_b = columns_font_b
         self._image_max_width = image_max_width
@@ -45,7 +47,7 @@ class ReceiptPrinterApiClient:
     def _get_printer(self) -> Network:
         """Get or create printer instance."""
         if self._printer is None:
-            self._printer = Network(self._host)
+            self._printer = Network(self._host, port=self._port)
         return self._printer
 
     async def async_connect(self) -> None:

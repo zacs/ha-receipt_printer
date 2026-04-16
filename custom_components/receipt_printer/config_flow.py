@@ -19,6 +19,7 @@ from .const import (
     CONF_COLUMNS_FONT_B,
     CONF_IMAGE_MAX_WIDTH,
     CONF_PRINTER_IP,
+    CONF_PRINTER_PORT,
     CONF_PRINTER_NAME,
     DOMAIN,
     LOGGER,
@@ -82,6 +83,16 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
+                        ),
+                    ),
+                    vol.Required{
+                        CONF_PRINTER_PORT,
+                        default=(user_input or {}).get(CONF_PRINTER_PORT, 9100),
+                    ): selector.NumberSelector(
+                            selector.NumberSelectorConfig(
+                                min=1,
+                                mmax=9999,
+                                mode=selector.NumberSelectorMode.BOX,
                         ),
                     ),
                     vol.Optional(

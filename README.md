@@ -54,6 +54,7 @@ _Disclaimer: This was vibe coded. It's a very straightforward and scoped compone
 4. Enter the following information:
    - **Printer Name**: A friendly name for your printer (e.g., "Kitchen Receipt Printer")
    - **Printer IP Address**: The IP address of your receipt printer on your network
+   - **Printer Port**: The Port of the Printer (default: 9100)
    - **Columns (Font A)**: Number of text columns for font A (default: 42, suitable for TM-T88V)
    - **Columns (Font B)**: Number of text columns for font B (default: 56, suitable for TM-T88V)
    - **Image Max Width**: Maximum image width in pixels (default: 512, suitable for TM-T88V)
@@ -72,6 +73,7 @@ This integration uses the [python-escpos](https://github.com/python-escpos/pytho
 
 Tested models:
 - Epson TM-T88VI
+- Epson TM-T88IV
 
 Other ESC/POS compatible printers should work but may require adjusting the column widths and image size settings during configuration.
 

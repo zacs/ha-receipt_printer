@@ -8,6 +8,7 @@ DOMAIN = "receipt_printer"
 
 # Config flow
 CONF_PRINTER_IP = "printer_ip"
+CONF_PRINTER_PORT = "printer_port"
 CONF_PRINTER_NAME = "printer_name"
 CONF_COLUMNS_FONT_A = "columns_font_a"
 CONF_COLUMNS_FONT_B = "columns_font_b"

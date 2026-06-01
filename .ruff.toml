@@ -13,6 +13,11 @@ ignore = [
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
+    "FBT001", # Boolean positional args are common for service-style APIs
+    "FBT002", # Boolean default positional args ditto
+    "PLR0913", # Service calls naturally have many arguments
+    "BLE001", # Defensive `except Exception` is normal in HA platforms
+    "ARG004", # Some HA static-method signatures require unused args
 ]
 
 [lint.flake8-pytest-style]

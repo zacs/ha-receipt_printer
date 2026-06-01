@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import tempfile
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import aiohttp
-from PIL import Image
-
-from escpos.printer import Network
 from escpos.exceptions import Error as EscposError
+from escpos.printer import Network
+from PIL import Image
 
 
 class ReceiptPrinterApiClientError(Exception):
@@ -67,10 +68,8 @@ class ReceiptPrinterApiClient:
     async def async_disconnect(self) -> None:
         """Disconnect from the printer."""
         if self._printer is not None:
-            try:
+            with contextlib.suppress(Exception):
                 await asyncio.to_thread(self._printer.close)
-            except Exception:
-                pass  # Ignore errors on disconnect
 
     async def async_test_connection(self) -> dict[str, Any]:
         """Test connection and get basic printer info."""
@@ -88,16 +87,13 @@ class ReceiptPrinterApiClient:
             # Try to get printer status
             is_online = printer.is_online()
             paper = printer.paper_status()
-            
-            return {
-                "online": is_online,
-                "paper_status": paper,
-            }
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 printer.close()
-            except Exception:
-                pass
+        return {
+            "online": is_online,
+            "paper_status": paper,
+        }
 
     async def async_get_status(self) -> dict[str, Any]:
         """Get printer status."""
@@ -108,7 +104,7 @@ class ReceiptPrinterApiClient:
                 asyncio.to_thread(self._get_status),
                 timeout=15,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return {
                 "online": False,
                 "paper_status": 0,
@@ -128,11 +124,6 @@ class ReceiptPrinterApiClient:
             printer.open()
             is_online = printer.is_online()
             paper = printer.paper_status()
-
-            return {
-                "online": is_online,
-                "paper_status": paper,
-            }
         except EscposError as exception:
             return {
                 "online": False,
@@ -147,10 +138,12 @@ class ReceiptPrinterApiClient:
                 "error": str(exception),
             }
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 printer.close()
-            except Exception:
-                pass
+        return {
+            "online": is_online,
+            "paper_status": paper,
+        }
 
     async def async_print_text(
         self,
@@ -200,7 +193,7 @@ class ReceiptPrinterApiClient:
             double_height=double_height,
             double_width=double_width,
         )
-        
+
         if wrap:
             # Use block_text for automatic word wrapping
             # Use configured column widths
@@ -218,7 +211,7 @@ class ReceiptPrinterApiClient:
         else:
             # Use regular text without wrapping
             printer.text(text + "\n")
-        
+
         if cut:
             printer.cut()
 
@@ -242,11 +235,9 @@ class ReceiptPrinterApiClient:
                         cut,
                     )
                 finally:
-                    # Clean up the temporary file
-                    try:
-                        Path(temp_file).unlink()
-                    except Exception:
-                        pass  # Ignore cleanup errors
+                    # Clean up the temporary file (off the event loop)
+                    with contextlib.suppress(Exception):
+                        await asyncio.to_thread(Path(temp_file).unlink)
             else:
                 await asyncio.to_thread(
                     self._print_image,
@@ -262,23 +253,22 @@ class ReceiptPrinterApiClient:
         """Check if a path is a URL."""
         try:
             result = urlparse(path)
-            return result.scheme in ("http", "https")
         except Exception:
             return False
+        return result.scheme in ("http", "https")
 
     async def _download_image(self, url: str) -> str:
         """Download an image from a URL to a temporary file."""
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status != 200:
-                    msg = f"Failed to download image from {url}: HTTP {response.status}"
-                    raise ReceiptPrinterApiClientCommunicationError(msg)
-                
-                # Create a temporary file
-                suffix = Path(urlparse(url).path).suffix or ".jpg"
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
-                    tmp_file.write(await response.read())
-                    return tmp_file.name
+        async with aiohttp.ClientSession() as session, session.get(url) as response:
+            if response.status != HTTPStatus.OK:
+                msg = f"Failed to download image from {url}: HTTP {response.status}"
+                raise ReceiptPrinterApiClientCommunicationError(msg)
+
+            # Create a temporary file
+            suffix = Path(urlparse(url).path).suffix or ".jpg"
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
+                tmp_file.write(await response.read())
+                return tmp_file.name
 
     def _print_image(
         self,
@@ -288,20 +278,20 @@ class ReceiptPrinterApiClient:
     ) -> None:
         """Print image (blocking)."""
         printer = self._get_printer()
-        
+
         # Open the image and resize if needed
         img = Image.open(image_path)
-        
+
         # Check if image width exceeds configured max width
         if img.width > self._image_max_width:
             # Calculate new height to maintain aspect ratio
             aspect_ratio = img.height / img.width
             new_width = int(self._image_max_width)
             new_height = int(new_width * aspect_ratio)
-            
+
             # Resize the image
             img = img.resize((new_width, new_height), Image.LANCZOS)
-        
+
         # Print the image (escpos supports PIL Image objects)
         printer.image(img, center=center)
         if cut:

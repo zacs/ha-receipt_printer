@@ -70,7 +70,9 @@ class ReceiptPrinterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_PRINTER_NAME,
-                        default=(user_input or {}).get(CONF_PRINTER_NAME, "Receipt Printer"),
+                        default=(user_input or {}).get(
+                            CONF_PRINTER_NAME, "Receipt Printer"
+                        ),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,

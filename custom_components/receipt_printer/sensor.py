@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+)
 
-from .const import PAPER_STATUS
 from .entity import ReceiptPrinterEntity
 
 if TYPE_CHECKING:
@@ -60,7 +63,7 @@ class ReceiptPrinterPaperSensor(ReceiptPrinterEntity, SensorEntity):
         """Update the sensor."""
         try:
             status = await self._entry.runtime_data.client.async_get_status()
-            
+
             if not status.get("online", False):
                 # If printer is offline, mark sensor as unavailable
                 self._attr_available = False
@@ -72,7 +75,7 @@ class ReceiptPrinterPaperSensor(ReceiptPrinterEntity, SensorEntity):
                     self._attr_native_value = "low"
                 else:
                     self._attr_native_value = "ok"
-                
+
                 self._attr_available = True
         except Exception:
             self._attr_available = False

@@ -12,10 +12,8 @@ from typing import TYPE_CHECKING
 import voluptuous as vol
 from getmac import get_mac_address
 from homeassistant.const import Platform
-from homeassistant.core import ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import ReceiptPrinterApiClient
@@ -25,7 +23,6 @@ from .const import (
     CONF_IMAGE_MAX_WIDTH,
     CONF_PRINTER_IP,
     DOMAIN,
-    LOGGER,
     SERVICE_PRINT_IMAGE,
     SERVICE_PRINT_QR,
     SERVICE_PRINT_TEXT,
@@ -33,7 +30,7 @@ from .const import (
 from .data import ReceiptPrinterData
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import HomeAssistant, ServiceCall
 
     from .data import ReceiptPrinterConfigEntry
 
@@ -67,7 +64,9 @@ SERVICE_PRINT_IMAGE_SCHEMA = vol.Schema(
 SERVICE_PRINT_QR_SCHEMA = vol.Schema(
     {
         vol.Required("content"): cv.string,
-        vol.Optional("size", default=3): vol.All(vol.Coerce(int), vol.Range(min=1, max=16)),
+        vol.Optional("size", default=3): vol.All(
+            vol.Coerce(int), vol.Range(min=1, max=16)
+        ),
         vol.Optional("center", default=False): cv.boolean,
         vol.Optional("cut", default=True): cv.boolean,
     }
@@ -93,14 +92,14 @@ async def async_setup_entry(
         CONF_IMAGE_MAX_WIDTH,
         entry.data.get(CONF_IMAGE_MAX_WIDTH, 512),
     )
-    
+
     client = ReceiptPrinterApiClient(
         host=entry.data[CONF_PRINTER_IP],
         columns_font_a=columns_font_a,
         columns_font_b=columns_font_b,
         image_max_width=image_max_width,
     )
-    
+
     entry.runtime_data = ReceiptPrinterData(
         client=client,
         integration=async_get_loaded_integration(hass, entry.domain),
@@ -111,7 +110,7 @@ async def async_setup_entry(
 
     # Get the MAC address from the IP
     mac_address = get_mac_address(ip=entry.data[CONF_PRINTER_IP])
-    
+
     # Register the device
     device_registry = dr.async_get(hass)
     device_info = {
@@ -121,11 +120,11 @@ async def async_setup_entry(
         "manufacturer": "Epson",
         "model": "Receipt Printer",
     }
-    
+
     # Only add MAC connection if we successfully retrieved it
     if mac_address:
         device_info["connections"] = {(dr.CONNECTION_NETWORK_MAC, mac_address)}
-    
+
     device_registry.async_get_or_create(**device_info)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -193,12 +192,12 @@ async def async_unload_entry(
     """Handle removal of an entry."""
     # Disconnect from the printer
     await entry.runtime_data.client.async_disconnect()
-    
+
     # Unregister services
     hass.services.async_remove(DOMAIN, SERVICE_PRINT_TEXT)
     hass.services.async_remove(DOMAIN, SERVICE_PRINT_IMAGE)
     hass.services.async_remove(DOMAIN, SERVICE_PRINT_QR)
-    
+
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 

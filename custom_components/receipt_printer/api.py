@@ -45,7 +45,10 @@ class ReceiptPrinterApiClient:
     def _get_printer(self) -> Network:
         """Get or create printer instance."""
         if self._printer is None:
-            self._printer = Network(self._host)
+            # Use a shorter timeout (10s) than the default (60s) so status
+            # checks don't exceed the sensor update interval when the
+            # printer is in a bad state (e.g. out of paper).
+            self._printer = Network(self._host, timeout=10)
         return self._printer
 
     async def async_connect(self) -> None:
@@ -99,18 +102,33 @@ class ReceiptPrinterApiClient:
     async def async_get_status(self) -> dict[str, Any]:
         """Get printer status."""
         try:
-            return await asyncio.to_thread(self._get_status)
+            # Bound the entire operation to 15s so a hung printer can't
+            # cause sensor updates to pile up.
+            return await asyncio.wait_for(
+                asyncio.to_thread(self._get_status),
+                timeout=15,
+            )
+        except asyncio.TimeoutError:
+            return {
+                "online": False,
+                "paper_status": 0,
+                "error": "timeout",
+            }
         except Exception as exception:
             msg = f"Error getting printer status - {exception}"
             raise ReceiptPrinterApiClientCommunicationError(msg) from exception
 
     def _get_status(self) -> dict[str, Any]:
         """Get status (blocking)."""
-        printer = self._get_printer()
+        # Use a fresh connection for status checks since a persistent
+        # connection can become stale (especially if the printer has
+        # been in an error state).
+        printer = Network(self._host, timeout=10)
         try:
+            printer.open()
             is_online = printer.is_online()
             paper = printer.paper_status()
-            
+
             return {
                 "online": is_online,
                 "paper_status": paper,
@@ -121,6 +139,18 @@ class ReceiptPrinterApiClient:
                 "paper_status": 0,
                 "error": str(exception),
             }
+        except OSError as exception:
+            # Socket errors (timeout, connection refused, etc.)
+            return {
+                "online": False,
+                "paper_status": 0,
+                "error": str(exception),
+            }
+        finally:
+            try:
+                printer.close()
+            except Exception:
+                pass
 
     async def async_print_text(
         self,
